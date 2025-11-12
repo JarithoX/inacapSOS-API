@@ -4,6 +4,7 @@ const cors = require('cors');
 const usuariosRoutes = require('./routes/usuario.routes');
 const incidenteRoutes = require('./routes/incidente.routes');
 const alertaSosRoutes = require('./routes/alerta_sos.routes');
+const acompanamientoRoutes = require('./routes/acompanamiento.routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -17,6 +18,7 @@ app.use(express.json());
 app.use('/usuarios', usuariosRoutes);
 app.use('/incidente', incidenteRoutes);
 app.use('/alertas', alertaSosRoutes);
+app.use('/acompanamiento', acompanamientoRoutes);
 
 
 // ping opcional
@@ -29,5 +31,6 @@ app.listen(PORT, () => {
     console.log(`- http://localhost:${PORT}/usuarios`);
     console.log(`- http://localhost:${PORT}/incidente`);
     console.log(`- http://localhost:${PORT}/alertas`);
+    console.log(`- http://localhost:${PORT}/acompanamiento`);
 
 });
