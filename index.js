@@ -3,6 +3,7 @@ const cors = require('cors');
 
 const usuariosRoutes = require('./routes/usuario.routes');
 const incidenteRoutes = require('./routes/incidente.routes');
+const alertaSosRoutes = require('./routes/alerta_sos.routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -15,6 +16,7 @@ app.use(express.json());
 // Rutas de la API
 app.use('/usuarios', usuariosRoutes);
 app.use('/incidente', incidenteRoutes);
+app.use('/alertas', alertaSosRoutes);
 
 
 // ping opcional
@@ -26,4 +28,6 @@ app.listen(PORT, () => {
     console.log('Rutas disponibles:');
     console.log(`- http://localhost:${PORT}/usuarios`);
     console.log(`- http://localhost:${PORT}/incidente`);
+    console.log(`- http://localhost:${PORT}/alertas`);
+
 });
