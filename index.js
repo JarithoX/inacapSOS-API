@@ -5,6 +5,7 @@ const usuariosRoutes = require('./routes/usuario.routes');
 const incidenteRoutes = require('./routes/incidente.routes');
 const alertaSosRoutes = require('./routes/alerta_sos.routes');
 const acompanamientoRoutes = require('./routes/acompanamiento.routes');
+const notificacionRoutes = require('./routes/notificacion.routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,6 +20,7 @@ app.use('/usuarios', usuariosRoutes);
 app.use('/incidente', incidenteRoutes);
 app.use('/alertas', alertaSosRoutes);
 app.use('/acompanamiento', acompanamientoRoutes);
+app.use('/notificacion', notificacionRoutes);
 
 
 // ping opcional
