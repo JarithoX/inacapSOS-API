@@ -1,12 +1,15 @@
-const admin = require('../config/firebase');
-const db = require('../config/firebase');
+// controllers/usuario.controller.js
+
+// 💡 ¡CORREGIDO! Usamos "destructuring" para obtener solo lo que necesitamos
+const { db } = require('../config/firebase'); 
 const authService = require('../services/auth.service');
 
 
 // GET /usuarios
 async function getUsuarios(_req, res) {
   try {
-    const snapshot = await db.collection('usuario').get();
+    // 'db' ahora SÍ es la instancia de Firestore
+    const snapshot = await db.collection('usuario').get(); 
     const usuarios = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     console.log(usuarios);
     return res.status(200).json(usuarios);
@@ -27,19 +30,34 @@ const register = async (req, res) => {
              return res.status(400).send({ error: 'Faltan campos (email, password, nombre) requeridos.' });
         }
 
-        // 1. Llama al Servicio para registrar y asignar el rol 'user'
-        const newUser = await authService.registrarUsuario(email, password, nombre);
+    // 1. Llama al Servicio (que ahora registra en Auth y Firestore)
+    const newUser = await authService.registrarUsuario(email, password, nombre);
 
-        // 2. Éxito: 201 Created
-        res.status(201).send({ 
-            mensaje: 'Usuario registrado. Use el token de Firebase Auth para las demás rutas.',
-            uid: newUser.uid 
-        });
+    // 2. Éxito: 201 Created
+    res.status(201).send({
+      mensaje: 'Usuario registrado. Use el token de Firebase Auth para las demás rutas.',
+      uid: newUser.uid,
+      rol: newUser.rol || 'user'
+    });
 
     } catch (error) {
-        console.error('Error al registrar usuario:', error.message);
-        // Manejo de errores de Firebase (ej: email ya en uso)
-        res.status(400).send({ error: error.message });
+    // Mostrar todo el objeto error en consola para diagnóstico
+    console.error('Error al registrar usuario (detalle):', error);
+
+    // Clasificar tipos de error por prefijo creado en el servicio
+    const message = error.message || String(error);
+    if (message.startsWith('AuthCreateError:')) {
+      return res.status(400).send({ error: 'Error creando usuario en Auth: ' + message.replace('AuthCreateError:','').trim() });
+    }
+    if (message.startsWith('FirestoreWriteError:')) {
+      return res.status(500).send({ error: 'Error guardando perfil de usuario en base de datos: ' + message.replace('FirestoreWriteError:','').trim() });
+    }
+    if (message.startsWith('CustomClaimsError:')) {
+      return res.status(500).send({ error: 'Error asignando roles al usuario, contacte al administrador: ' + message.replace('CustomClaimsError:','').trim() });
+    }
+
+    // Error genérico
+    res.status(500).send({ error: message });
     }
 };
 
