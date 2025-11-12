@@ -7,12 +7,12 @@ const COLL = 'acompanamiento';
 async function getAcompanamiento(_req, res) {
   try {
     const snapshot = await db.collection(COLL).get();
-    const alertaSos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    console.log(alertaSos);
-    return res.status(200).json(alertaSos);
+    const acompanamiento = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    console.log(acompanamiento);
+    return res.status(200).json(acompanamiento);
   } catch (err) {
-    console.error('Error al obtener Alertas SOS:', err);
-    return res.status(500).json({ error: 'Error al obtener Alertas SOS' });
+    console.error('Error al obtener los acompañamientos:', err);
+    return res.status(500).json({ error: 'Error al obtener acompañamientos' });
   }
 }
 

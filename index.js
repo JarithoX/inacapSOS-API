@@ -34,5 +34,6 @@ app.listen(PORT, () => {
     console.log(`- http://localhost:${PORT}/incidente`);
     console.log(`- http://localhost:${PORT}/alertas`);
     console.log(`- http://localhost:${PORT}/acompanamiento`);
+    console.log(`- http://localhost:${PORT}/notificacion`);
 
 });
