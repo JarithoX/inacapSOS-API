@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+require('./config/firebase');
 
 const usuariosRoutes = require('./routes/usuario.routes');
 const incidenteRoutes = require('./routes/incidente.routes');
