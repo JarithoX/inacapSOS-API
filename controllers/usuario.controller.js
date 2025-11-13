@@ -1,5 +1,3 @@
-// controllers/usuario.controller.js
-
 // 💡 ¡CORREGIDO! Usamos "destructuring" para obtener solo lo que necesitamos
 const { db } = require('../config/firebase'); 
 const authService = require('../services/auth.service');
