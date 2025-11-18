@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+require('./config/firebase');
 
 const usuariosRoutes = require('./routes/usuario.routes');
 const incidenteRoutes = require('./routes/incidente.routes');
@@ -10,10 +11,8 @@ const notificacionRoutes = require('./routes/notificacion.routes');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-
 app.use(cors({ origin: ['http://localhost:8000'], credentials: true }));
 app.use(express.json());
-
 
 // Rutas de la API
 app.use('/usuarios', usuariosRoutes);
@@ -21,7 +20,6 @@ app.use('/incidente', incidenteRoutes);
 app.use('/alertas', alertaSosRoutes);
 app.use('/acompanamiento', acompanamientoRoutes);
 app.use('/notificacion', notificacionRoutes);
-
 
 // ping opcional
 app.get('/', (_req, res) => res.status(200).send('API InacapSOS funcionando.'));
@@ -35,5 +33,4 @@ app.listen(PORT, () => {
     console.log(`- http://localhost:${PORT}/alertas`);
     console.log(`- http://localhost:${PORT}/acompanamiento`);
     console.log(`- http://localhost:${PORT}/notificacion`);
-
 });
