@@ -1,20 +1,53 @@
-const { db,admin } = require('../config/firebase');
+const { db } = require('../config/firebase');
 
-// GET /incidente 
-async function getIncidentes(_req, res) {
-  try {
-    const snapshot = await db.collection('incidente').get(); // colección 'incidente'
-    const incidentes = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-    return res.status(200).json(incidentes);
-  } catch (err) {
-    console.error('Error al obtener incidentes:', err);
-    return res.status(500).json({ error: 'Error al obtener incidentes' });
-  }
+// GET /incidente - Obtener todos los incidentes
+async function getIncidentes(req, res) {
+    try {
+        const snapshot = await db.collection('incidente').get();
+        const incidentes = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+        }));
+        return res.status(200).json(incidentes);
+    } catch (err) {
+        console.error('Error al obtener incidentes', err);
+        return res.status(500).json({ error: 'Error al obtener incidentes' });
+    }
 }
 
+// POST /incidente - Crear un nuevo incidente
+async function createIncidente(req, res) {
+    try {
+        // Extraemos los datos del cuerpo de la petición
+        const { titulo, descripcion, latitud, longitud, userId } = req.body;
 
+        // Validación simple para asegurarnos de que los datos necesarios están presentes
+        if (!titulo || !descripcion || !latitud || !longitud || !userId) {
+            return res.status(400).json({ error: 'Faltan campos requeridos en la solicitud.' });
+        }
 
-module.exports = { getIncidentes };
+        const nuevoIncidente = {
+            titulo,
+            descripcion,
+            latitud,
+            longitud,
+            userId,
+            timestamp: new Date() // Agregamos una marca de tiempo
+        };
+
+        // Añadimos el nuevo incidente a la colección 'incidente' en Firestore
+        const docRef = await db.collection('incidente').add(nuevoIncidente);
+
+        // Devolvemos una respuesta exitosa (201 Created) con los datos guardados
+        res.status(201).json({ id: docRef.id, ...nuevoIncidente });
+
+    } catch (error) {
+        console.error("Error al crear el incidente:", error);
+        res.status(500).json({ error: "Ocurrió un error al guardar el incidente." });
+    }
+}
+
+module.exports = {
+    getIncidentes,
+    createIncidente // Exportamos la nueva función
+};

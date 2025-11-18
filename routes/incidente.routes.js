@@ -1,9 +1,13 @@
-// routes/incidente.routes.js
 const { Router } = require('express');
-const { getIncidentes } = require('../controllers/incidente.controller');
+// Importamos la nueva función del controlador
+const { getIncidentes, createIncidente } = require('../controllers/incidente.controller');
 
 const router = Router();
 
-router.get('/', getIncidentes);      // GET /incidente
+// Ruta para obtener todos los incidentes
+router.get('/', getIncidentes);
+
+// Ruta para crear un nuevo incidente
+router.post('/', createIncidente);
 
 module.exports = router;
