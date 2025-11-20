@@ -19,7 +19,7 @@ async function getIncidentes(req, res) {
 async function createIncidente(req, res) {
     try {
         // Extraemos los datos del cuerpo de la petición
-        const { titulo, descripcion, latitud, longitud, userId } = req.body;
+        const { titulo, descripcion, latitud, longitud, userId, estado, evidencia_url} = req.body;
 
         // Validación simple para asegurarnos de que los datos necesarios están presentes
         if (!titulo || !descripcion || !latitud || !longitud || !userId) {
@@ -32,6 +32,8 @@ async function createIncidente(req, res) {
             latitud,
             longitud,
             userId,
+            estado: estado || 'activa',
+            evidencia_url: evidencia_url || '',
             timestamp: new Date() // Agregamos una marca de tiempo
         };
 
