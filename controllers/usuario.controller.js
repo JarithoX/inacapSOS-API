@@ -149,8 +149,46 @@ const register = async (req, res) => {
   }
 };
 
+// POST /usuarios/create-guard
+async function createGuard(req, res) {
+  try {
+    const { nombre, apellido, email, password } = req.body;
+
+    if (!nombre || !apellido || !email || !password) {
+      return res.status(400).json({ error: 'Todos los campos son requeridos: nombre, apellido, email, password.' });
+    }
+
+    // Preparamos los datos del nuevo usuario con el rol de 'guardia'
+    const guardData = {
+      nombre,
+      apellido,
+      email,
+      password,
+      rol: 'guardia' // Asignamos el rol explícitamente
+    };
+
+    // Usamos el mismo servicio de autenticación que el registro normal
+    const newGuard = await authService.registrarUsuario(guardData);
+
+    // Devolvemos una respuesta exitosa
+    return res.status(201).json({
+      mensaje: 'Cuenta de guardia creada exitosamente.',
+      uid: newGuard.uid,
+      rol: newGuard.rol 
+    });
+
+  } catch (error) {
+    console.error('Error al crear cuenta de guardia:', error);
+    // Puedes reusar el manejo de errores detallado de tu función de registro si lo deseas
+    return res.status(500).json({ error: 'Error en el servidor al crear la cuenta de guardia.' });
+  }
+}
+
+
 module.exports = {
     getUsuarios,
     loginUsuario,
-    register
+    register,
+    createGuard
 };
+

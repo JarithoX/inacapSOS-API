@@ -13,12 +13,11 @@ const registrarUsuario = async (userData) => {
     password,
     nombre,
     apellido,
-    edad,
-    sede,
-    genero,
+    edad = null,
+    sede = null,
+    genero = null,
+    rol = 'estudiante',
   } = userData;
-
-  const rol = 'estudiante'; // rol por defecto
   let uid;
   let hashedPassword; // MOD: declaramos hashedPassword fuera del try para poder usarla después
 
@@ -45,7 +44,7 @@ const registrarUsuario = async (userData) => {
       nombre,
       apellido,
       email,
-      password: hashedPassword,   
+      password: hashedPassword,
       rol,
       edad,
       sede,
@@ -84,6 +83,6 @@ const registrarUsuario = async (userData) => {
 // Por ahora, solo necesitamos registrar.
 
 module.exports = {
-    registrarUsuario,
+  registrarUsuario,
 };
 
