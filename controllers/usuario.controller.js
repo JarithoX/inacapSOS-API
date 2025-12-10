@@ -1,25 +1,25 @@
-const { db } = require('../config/firebase'); 
+const { db } = require('../config/firebase');
 const authService = require('../services/auth.service');
 const bcrypt = require('bcryptjs');
 
 // GET /usuarios
 async function getUsuarios(req, res) {
-    try {
-        const snapshot = await db.collection('usuario').get();
-        const usuarios = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        console.log(usuarios);
-        return res.status(200).json(usuarios);
-    } catch (err) {
-        console.error('Error al obtener usuarios', err);
-        return res.status(500).json({ error: 'Error al obtener usuarios' });
-    }
+  try {
+    const snapshot = await db.collection('usuario').get();
+    const usuarios = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    console.log(usuarios);
+    return res.status(200).json(usuarios);
+  } catch (err) {
+    console.error('Error al obtener usuarios', err);
+    return res.status(500).json({ error: 'Error al obtener usuarios' });
+  }
 }
 
 // POST /usuarios/login
 async function loginUsuario(req, res) {
   try {
     const { email } = req.body;
-    const password = req.body.password ?? req.body.contrasena;    
+    const password = req.body.password ?? req.body.contrasena;
 
     if (!email || !password) {
       return res
@@ -117,7 +117,7 @@ const register = async (req, res) => {
       mensaje:
         'Usuario registrado. Use el token de Firebase Auth para las demás rutas.',
       uid: newUser.uid,
-      rol: newUser.rol || 'estudiante', 
+      rol: newUser.rol || 'estudiante',
     });
   } catch (error) {
     console.error('Error al registrar usuario (detalle):', error);
@@ -174,7 +174,7 @@ async function createGuard(req, res) {
     return res.status(201).json({
       mensaje: 'Cuenta de guardia creada exitosamente.',
       uid: newGuard.uid,
-      rol: newGuard.rol 
+      rol: newGuard.rol
     });
 
   } catch (error) {
@@ -185,10 +185,94 @@ async function createGuard(req, res) {
 }
 
 
-module.exports = {
-    getUsuarios,
-    loginUsuario,
-    register,
-    createGuard
+// Obtener perfil completo de un usuario por ID (GET /usuarios/:id)
+const getUsuarioById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const doc = await db.collection('usuario').doc(id).get();
+
+    if (!doc.exists) {
+      return res.status(404).json({ error: 'Usuario no encontrado.' });
+    }
+
+    const data = doc.data();
+
+    // Importante: incluir siempre el id en la respuesta
+    return res.status(200).json({
+      id: doc.id,
+      ...data,
+    });
+  } catch (err) {
+    console.error('Error obteniendo usuario por ID:', err);
+    return res
+      .status(500)
+      .json({ error: 'Error en el servidor al obtener el usuario.' });
+  }
 };
 
+// Actualizar datos de perfil de un usuario (PUT /usuarios/:id)
+const updateUsuario = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const docRef = db.collection('usuario').doc(id);
+    const snapshot = await docRef.get();
+
+    if (!snapshot.exists) {
+      return res.status(404).json({ error: 'Usuario no encontrado.' });
+    }
+
+    // Solo campos permitidos (NO email, NO rol, NO password)
+    const { nombre, apellido, edad, sede, genero } = req.body;
+
+    const updateData = {};
+
+    if (typeof nombre === 'string') updateData.nombre = nombre.trim();
+    if (typeof apellido === 'string') updateData.apellido = apellido.trim();
+    if (typeof sede === 'string') updateData.sede = sede.trim();
+    if (typeof genero === 'string') updateData.genero = genero.trim();
+
+    if (edad !== undefined) {
+      const edadNumber = Number(edad);
+      if (Number.isNaN(edadNumber) || edadNumber <= 0) {
+        return res
+          .status(400)
+          .json({ error: 'La edad debe ser un número mayor que 0.' });
+      }
+      updateData.edad = edadNumber;
+    }
+
+    // Evitar request vacía
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({
+        error:
+          'No se proporcionaron campos válidos para actualizar (nombre, apellido, edad, sede, genero).',
+      });
+    }
+
+    await docRef.update(updateData);
+
+    const updatedSnapshot = await docRef.get();
+    const updatedData = updatedSnapshot.data();
+
+    return res.status(200).json({
+      id: updatedSnapshot.id,
+      ...updatedData,
+    });
+  } catch (err) {
+    console.error('Error actualizando usuario:', err);
+    return res
+      .status(500)
+      .json({ error: 'Error en el servidor al actualizar el usuario.' });
+  }
+};
+
+module.exports = {
+  getUsuarios,
+  loginUsuario,
+  register,
+  createGuard,
+  getUsuarioById,
+  updateUsuario
+};
