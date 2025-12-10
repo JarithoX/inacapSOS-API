@@ -12,6 +12,5 @@ router.post('/create-guard', ctrl.createGuard);
 router.get('/', authenticate, ctrl.getUsuarios);
 router.get('/:id', ctrl.getUsuarioById);
 router.put('/:id', ctrl.updateUsuario);
-router.post('/create-guard', ctrl.createGuard);
 
 module.exports = router;
