@@ -19,7 +19,7 @@ async function getIncidentes(req, res) {
 async function createIncidente(req, res) {
     try {
         // Extraemos los datos del cuerpo de la petición
-        const { titulo, descripcion, latitud, longitud, userId, estado, evidencia_url} = req.body;
+        const { titulo, descripcion, latitud, longitud, userId, estado, evidencia_url } = req.body;
 
         // Validación simple para asegurarnos de que los datos necesarios están presentes
         if (!titulo || !descripcion || !latitud || !longitud || !userId) {
@@ -49,7 +49,39 @@ async function createIncidente(req, res) {
     }
 }
 
+// PUT /incidente/:id - Actualizar un incidente existente
+async function updateIncidente(req, res) {
+    try {
+        const { id } = req.params;
+        const datosAActualizar = req.body; 
+        if (!id) {
+            return res.status(400).json({ error: "El ID del incidente es obligatorio" });
+        }
+
+        const incidenteRef = db.collection('incidente').doc(id);
+        const doc = await incidenteRef.get();
+
+        if (!doc.exists) {
+            return res.status(404).json({ error: "Incidente no encontrado" });
+        }
+
+        // Actualizamos en Firestore
+        await incidenteRef.update(datosAActualizar);
+
+        return res.status(200).json({
+            message: "Incidente actualizado correctamente",
+            id: id,
+            datosActualizados: datosAActualizar
+        });
+
+    } catch (error) {
+        console.error("Error al actualizar incidente:", error);
+        return res.status(500).json({ error: "Error interno del servidor al actualizar el incidente" });
+    }
+}
+
 module.exports = {
     getIncidentes,
-    createIncidente // Exportamos la nueva función
+    createIncidente,
+    updateIncidente
 };

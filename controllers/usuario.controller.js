@@ -60,7 +60,11 @@ async function loginUsuario(req, res) {
 
     return res
       .status(200)
-      .json({ message: 'Inicio de sesión exitoso', usuario: datosUsuario });
+      .json({ 
+        message: 'Inicio de sesión exitoso', 
+        usuario: datosUsuario,
+      });
+    
   } catch (err) {
     console.error('Error en el inicio de sesión', err);
     return res

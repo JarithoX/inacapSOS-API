@@ -9,7 +9,7 @@ const acompanamientoRoutes = require('./routes/acompanamiento.routes');
 const notificacionRoutes = require('./routes/notificacion.routes');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080; //Antes 3000 para local host
 
 app.use(cors({ origin: ['http://localhost:8000'], credentials: true }));
 app.use(express.json());
