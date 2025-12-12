@@ -80,8 +80,67 @@ async function updateIncidente(req, res) {
     }
 }
 
+async function addComentario(req, res) {
+    try {
+        const { id } = req.params; // ID del incidente
+        const { texto, userId, nombreUsuario } = req.body; // Datos del comentario
+
+        if (!texto || !userId) {
+            return res.status(400).json({ error: 'El texto y el userId son obligatorios.' });
+        }
+
+        // Referencia a la subcolección 'comentarios' dentro del incidente
+        const comentarioRef = db.collection('incidente').doc(id).collection('comentarios');
+
+        const nuevoComentario = {
+            texto,
+            userId,
+            nombreUsuario: nombreUsuario || 'Anónimo', // Guardamos el nombre para no buscarlo después
+            timestamp: new Date()
+        };
+
+        const docRef = await comentarioRef.add(nuevoComentario);
+
+        res.status(201).json({ id: docRef.id, ...nuevoComentario });
+
+    } catch (error) {
+        console.error("Error al agregar comentario:", error);
+        res.status(500).json({ error: "Error al guardar el comentario." });
+    }
+}
+
+// GET /incidente/:id/comentarios - Obtener lista de comentarios
+async function getComentarios(req, res) {
+    try {
+        const { id } = req.params;
+        
+        // Obtenemos la subcolección ordenada por fecha
+        const snapshot = await db.collection('incidente').doc(id)
+            .collection('comentarios')
+            .orderBy('timestamp', 'asc') // Los más viejos arriba (tipo chat)
+            .get();
+
+        if (snapshot.empty) {
+            return res.status(200).json([]);
+        }
+
+        const comentarios = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+
+        res.status(200).json(comentarios);
+
+    } catch (error) {
+        console.error("Error al obtener comentarios:", error);
+        res.status(500).json({ error: "Error al cargar los comentarios." });
+    }
+}
+
 module.exports = {
     getIncidentes,
     createIncidente,
-    updateIncidente
+    updateIncidente,
+    addComentario,
+    getComentarios
 };
