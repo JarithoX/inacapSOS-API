@@ -4,11 +4,33 @@ const { db } = require('../config/firebase');
 async function getIncidentes(req, res) {
     try {
         const snapshot = await db.collection('incidente').get();
-        const incidentes = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
+
+        if (snapshot.empty) {
+            return res.status(200).json([]);
+        }
+
+        // Usamos Promise.all para esperar a que se verifiquen los comentarios de CADA incidente
+        const incidentes = await Promise.all(snapshot.docs.map(async doc => {
+            const data = doc.data();
+
+            // Consulta ligera: Solo pedimos 1 documento de la subcolección 'comentarios'
+            // para saber si existe actividad, sin gastar recursos contando todos.
+            const commentsSnapshot = await db.collection('incidente')
+                .doc(doc.id)
+                .collection('comentarios')
+                .limit(1) 
+                .get();
+
+            return {
+                id: doc.id,
+                ...data,
+                // Si la consulta no está vacía (!empty), significa que hay comentarios (true)
+                tieneComentarios: !commentsSnapshot.empty 
+            };
         }));
+
         return res.status(200).json(incidentes);
+
     } catch (err) {
         console.error('Error al obtener incidentes', err);
         return res.status(500).json({ error: 'Error al obtener incidentes' });
